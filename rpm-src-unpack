@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# rpm-src-unpack  --  Unpack source packages
+
+set -e
+
+usage() {
+  echo >&2 "Usage: rpms-src-unpack SRPM"
+  exit 1
+}
+
+srpm=$1
+
+if [ -z "$srpm" ]; then
+    usage
+fi
+
+dir=$(rpmquery -p "$srpm" --qf "%{NAME}-%{VERSION}")
+
+if [ -z "$dir" ]; then
+    exit 1
+fi
+
+mkdir -p "$dir"
+rpm2cpio "$srpm" | ( cd "$dir" && cpio -i )
+echo >&2 "Unpackaged into $dir"

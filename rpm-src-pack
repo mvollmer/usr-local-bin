@@ -1,0 +1,29 @@
+#! /bin/sh
+
+# rpm-src-pack  --  Pack a source package
+
+set -e
+
+usage() {
+  echo >&2 "Usage: rpms-src-pack DIR"
+  exit 1
+}
+
+dir=$1
+
+if [ -z "$dir" ]; then
+    usage
+fi
+
+if [ $(ls -1 "$dir"/*.spec | wc -l) != 1 ]; then
+    echo >&2 "Can't guess spec filename."
+    exit 1
+fi
+
+spec=$(echo "$dir"/*.spec)
+
+rpmbuild -bs \
+    --define "_sourcedir $dir" \
+    --define "_specdir $dir" \
+    --define "_srcrpmdir ." \
+    $spec | sed -e 's/Wrote: //'
